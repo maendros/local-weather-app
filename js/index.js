@@ -49,16 +49,21 @@ var geo_options = {
     $(document).ready(function(){    
 function getIPAddress() {
   var city = "",
-    country = "";
+    country_code = "";
   $.ajax({
      dataType: 'jsonp',
-    url: "http://ip-api.com/json/?callback=?",
+    url: "https://freegeoip.net/json/?callback=?",
     success: function(data) {
       console.log(data);
-      city = data.city;
-      country = data.country;
+      city = data.time_zone;
+      country_code = data.country_code;
+          console.log(city);
+      
+city = city.substring(city.indexOf("/") + 1);
+
+
       //updateLocation(city, country);
-      loadWeather(city, country);
+      loadWeather(city, country_code);
     },
     error: function(data){
       console.log(data);
@@ -79,12 +84,16 @@ function loadWeather(cit,countr){
         alternateTemperature="",
         weatherWind="",
         weatherDirection="";
+     var weatherAPI = 'http://api.openweathermap.org/data/2.5/weather?q=' +
+    cit  +'&units=metric' + '&type=accurate' +callback;
+  //console.log(weatherAPI);
+  if(window.location.protocol === 'https:') weatherAPI = 'https://cors-anywhere.herokuapp.com/' + weatherAPI
 
- 
+
   $.ajax({  
-    url: "http://api.openweathermap.org/data/2.5/weather?q=" + cit + "," + countr + '&units=metric' + '&type=accurate' + callback, success: function(weatherData) {
+    url: weatherAPI, success: function(weatherData) {
    weatherDescription=weatherData.weather[0].description;
-   
+   console.log(weatherData);
       weatherIcon  ="<img  src='http://openweathermap.org/img/w/"+weatherData.weather[0].icon+".png'/>";
       weatherWind=weatherData.wind.speed+' knots';
        weatherDirection=weatherData.wind.deg+' degrees';
@@ -92,6 +101,7 @@ function loadWeather(cit,countr){
       humidity = weatherData.main.humidity+" %";
       pressure = weatherData.main.pressure+' HPA';
       temperature ='<h1>'+ weatherData.main.temp+' C </h1>';
+      console.log(weatherData);
        alternateTemperature='<h1>'+  Math.round((weatherData.main.temp * 9) / 5 + 32)+' F </h1>';
       weathercity=weatherData.name;
        console.log(alternateTemperature);
